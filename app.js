@@ -6,6 +6,12 @@ let avarageData;
 
 var Schema = mongoose.Schema;
 
+const app = express()
+
+app.get('/', (req, res) => {
+    res.end('<h1>Home Page</h1>')
+})
+
 var dsteemClient = new Client('https://api.steemit.com');
 
 var dsteemKey = PrivateKey.fromString('5JrvPrQeBBvCRdjv29iDvkwn3EQYZ9jqfAHzrCyUvfbEbRkrYFC');
