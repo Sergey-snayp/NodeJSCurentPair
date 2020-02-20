@@ -2,6 +2,8 @@ var { PrivateKey, Client, DatabaseAPI } = require('dsteem');
 var mongoose = require('mongoose');
 var { CronJob } = require('cron');
 
+let avarageData;
+
 var Schema = mongoose.Schema;
 
 var dsteemClient = new Client('https://api.steemit.com');
@@ -27,7 +29,9 @@ var broadcastData = async (data) => {
     console.log('successfull end');
 }
 
-var getData = async () => {
+
+
+var getDataInBD = async () => {
     var db = await mongoose.connect('mongodb://localhost/testdb', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -43,7 +47,7 @@ var getData = async () => {
         quote: data.quote.amount,
     });
 
-    var [avarageData] = await CurrensyPair.aggregate([
+    [avarageData] = await CurrensyPair.aggregate([
         { "$match": { "createdAt": { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) } } },
         {
             $group: {
@@ -56,17 +60,29 @@ var getData = async () => {
     
     await db.disconnect();
     
+    console.log('Get data in BD');
+
+
+}
+
+var getBroadCastData = async () => {
+
     await broadcastData({
         avrBase: avarageData.avrBase,
         avrQuote: avarageData.avrQuote,
+
     });
-    
 }
 
-var job = new CronJob('* * * * *', () => {
-    console.log('CronJob do');
-    getData();
+var jobWriteInBD = new CronJob('0 */2 * * *', () => {
+    console.log('CronJob do1');
+    getDataInBD();
+});
+var jobCustomJson  = new CronJob('0 */24 * * *', () => {
+    console.log('CronJob do2');
+    getBroadCastData();
 });
 
+jobWriteInBD.start();
+jobCustomJson.start();
 
-job.start();
