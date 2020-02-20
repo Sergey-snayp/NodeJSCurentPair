@@ -8,6 +8,8 @@ var dsteemClient = new Client('https://api.steemit.com');
 
 var dsteemKey = PrivateKey.fromString('5JrvPrQeBBvCRdjv29iDvkwn3EQYZ9jqfAHzrCyUvfbEbRkrYFC');
 
+port = process.env.PORT || 9000;
+
 var CurrensyPairModel = new Schema({
     base: Number,
     quote: Number,
